@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>To-Do List</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS v5.2.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin-top: 20px;
+      background: #f8f8f8;
+    }
+
+    .todo-list {
+      margin: 10px 0;
+    }
+
+    .todo-list .todo-item {
+      padding: 15px;
+      margin: 5px 0;
+      background: #f7f7f7;
+      display: flex;
+      align-items: center;
+    }
+
+    .todo-list .todo-item.complete .task-text {
+      text-decoration: line-through;
+    }
+
+    .remove-todo-item {
+      color: red;
+    }
+
+    .remove-todo-item:hover {
+      color: #a70000;
+    }
+
+    .todo-item:hover .remove-todo-item {
+      visibility: visible;
+    }
+
+    .edit-todo-item,
+    .remove-todo-item {
+      display: inline-block;
+    }
+
+    .edit-todo-item.hide,
+    .remove-todo-item.hide {
+      display: none;
+    }
+
+    .checker {
+      width: 18px;
+      height: 18px;
+    }
+
+    .checker input,
+    .checker span {
+      width: 18px;
+      height: 18px;
+    }
+
+    .checker span {
+      display: inline-block;
+      text-align: center;
+      background-position: 0 -260px;
+    }
+
+    .card {
+      padding: 25px;
+      margin-bottom: 20px;
+      background: #fff;
+      border-radius: calc(.15rem - 1px);
+      box-shadow: 0 1px 15px rgba(0, 0, 0, 0.04), 0 1px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .form-inline .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-inline .btn {
+      flex: 0 0 auto;
+    }
+
+    .add-task {
+      width: 100%;
+    }
+
+    .edit-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .edit-area form {
+      display: flex;
+      align-items: center;
+    }
+
+    .edit-area form input {
+      flex-grow: 1;
+    }
+
+    .edit-area form button {
+      margin-left: 10px;
+    }
+
+    .todo-item .task-text {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+
+    .todo-item .task-icons {
+      display: flex;
+      align-items: center;
+    }
+
+    .task-icons a {
+      margin-left: 10px;
+    }
+
+    .task-icons a:first-child {
+      margin-left: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card card-white">
+          <div class="card-body">
+            <form class="form-inline" action="/list" method="post">
+              <div class="input-group">
+                <input type="text" class="form-control add-task" placeholder="New Task..." name="task">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-plus"></i> Add
+                </button>
+              </div>
+            </form>
+            <ul class="nav nav-pills todo-nav">
+              <li role="presentation" class="nav-item all-task active"><a href="#" class="nav-link">All</a></li>
+              <li role="presentation" class="nav-item active-task"><a href="#" class="nav-link">Active</a></li>
+              <li role="presentation" class="nav-item completed-task"><a  href="#" class="nav-link">Completed</a></li>
+            </ul>
+            <div class="todo-list">
+              <% lists.forEach((list) => { %>
+              <div class="todo-item <%= list.completed ? 'complete' : '' %>" data-id="<%= list.id %>">
+                <div class="checker">
+                  <span>
+                    <input type="checkbox" onclick="toggleTaskCompletion('<%= list.id %>')" <%= list.completed ? 'checked' : '' %>>
+                  </span>
+                </div>
+                <span class="task-text"><%= list.task %></span>
+                <div class="task-icons">
+                  <a href="#" class="edit-todo-item" title="Edit Task" onclick="showEditArea('<%= list.id %>'); return false;">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="/delete/<%= list.id%>" class="remove-todo-item" title="Delete Task">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+                <div id="edit-area-<%= list.id %>" class="edit-area" style="display: none;">
+                  <!-- Edit form or input field for editing the task -->
+                  <form action="/update/<%= list.id %>" method="post">
+                    <input type="text" class="form-control edit-task" name="task" placeholder="Edit Task...">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                  </form>
+                </div>
+              </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const allTaskLink = document.querySelector('.all-task');
+      const activeTaskLink = document.querySelector('.active-task');
+      const completedTaskLink = document.querySelector('.completed-task');
+  
+      allTaskLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        showAllTasks();
+        allTaskLink.classList.add('active');
+        activeTaskLink.classList.remove('active');
+        completedTaskLink.classList.remove('active');
+      });
+  
+      activeTaskLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        showActiveTasks();
+        allTaskLink.classList.remove('active');
+        activeTaskLink.classList.add('active');
+        completedTaskLink.classList.remove('active');
+      });
+  
+      completedTaskLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        showCompletedTasks();
+        allTaskLink.classList.remove('active');
+        activeTaskLink.classList.remove('active');
+        completedTaskLink.classList.add('active');
+      });
+    });
+  
+    function showAllTasks() {
+      const allTasks = document.querySelectorAll('.todo-item');
+      allTasks.forEach(function(task) {
+        task.style.display = 'flex';
+      });
+    }
+  
+    function showActiveTasks() {
+      const activeTasks = document.querySelectorAll('.todo-item:not(.complete)');
+      const completedTasks = document.querySelectorAll('.todo-item.complete');
+      activeTasks.forEach(function(task) {
+        task.style.display = 'flex';
+      });
+      completedTasks.forEach(function(task) {
+        task.style.display = 'none';
+      });
+    }
+  
+    function showCompletedTasks() {
+      const activeTasks = document.querySelectorAll('.todo-item:not(.complete)');
+      const completedTasks = document.querySelectorAll('.todo-item.complete');
+      activeTasks.forEach(function(task) {
+        task.style.display = 'none';
+      });
+      completedTasks.forEach(function(task) {
+        task.style.display = 'flex';
+      });
+    }
+  
+    function showEditArea(listId) {
+      const editArea = document.getElementById(`edit-area-${listId}`);
+      editArea.style.display = 'block';
+  
+      // Hide delete and edit icons
+      const editIcon = document.querySelector(`.todo-item[data-id="${listId}"] .edit-todo-item`);
+      const deleteIcon = document.querySelector(`.todo-item[data-id="${listId}"] .remove-todo-item`);
+      editIcon.classList.add('hide');
+      deleteIcon.classList.add('hide');
+    }
+  
+    function toggleTaskCompletion(listId) {
+      const todoItem = document.querySelector(`.todo-item[data-id="${listId}"]`);
+      const checkbox = todoItem.querySelector('input[type="checkbox"]');
+      const allTaskList = document.querySelector('.all-task .todo-list');
+      const completedTaskList = document.querySelector('.completed-task .todo-list');
+  
+      // Check if the checkbox is checked
+      if (checkbox.checked) {
+        todoItem.classList.add('complete');
+        todoItem.classList.remove('active');
+  
+        if (!completedTaskList.contains(todoItem)) {
+          completedTaskList.appendChild(todoItem);
+        }
+      } else {
+        todoItem.classList.remove('complete');
+        todoItem.classList.add('active');
+  
+        if (!allTaskList.contains(todoItem)) {
+          allTaskList.appendChild(todoItem);
+        }
+      }
+    }
+  </script>
+  
+</body>
+
+</html>
