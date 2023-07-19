@@ -4,11 +4,17 @@ const List = db.list
 
 
 exports.renderCreateList = async (req, res) => {
-  const lists = await List.findAll();
+  const lists = await List.findAll({
+    where:{
+        userId: req.user.id,
+    },
+    order: [['date', 'ASC']]
+  });
   const updatedLists = lists.map(updateListStatus);
   res.render("list", {
     lists: updatedLists,
-    moment: moment
+    moment: moment,
+    user:req.user,
   });
 };
 
@@ -23,6 +29,7 @@ exports.createList = async (req, res) => {
     task: task,
     completed: false,
     date: date,
+    userId: req.user.id,
   });
   console.log("List Updated Successfully");
 
@@ -37,7 +44,8 @@ exports.editList = async (req, res) => {
     },
   });
   res.render("list", {
-    lists: [lists]
+    lists: [lists],
+    user:req.user,
   });
 };
 
@@ -78,19 +86,22 @@ exports.completeList = async (req, res) => {
 
 };
 
+
+
+//created an function for status
 function updateListStatus(list) {
   if (list.completed) {
     list.status = 'Completed';
   } else if (moment(list.date).isBefore(moment().startOf('day'))) {
     list.status = 'Missed';
   } else {
-    list.status = 'Active';
+    list.status = 'Pending';
   }
   return list;
 }
 
 
-
+//to render the tasks in the filter
 exports.renderFilteredTasks = async (req, res) => {
   const { status } = req.params;
   
@@ -101,7 +112,7 @@ exports.renderFilteredTasks = async (req, res) => {
         completed: true,
       },
     });
-  } else if (status === 'active') {
+  } else if (status === 'pending') {
     tasks = await db.list.findAll({
       where: {
         completed: false,
@@ -123,18 +134,18 @@ exports.renderFilteredTasks = async (req, res) => {
     tasks = await db.list.findAll();
   }
 
+  //calling function
   const updatedTasks = tasks.map(updateListStatus);
 
   res.render("list", {
     lists: updatedTasks,
     moment: moment,
-    selectedFilter: status
+    selectedFilter: status,
+    user:req.user,
   });
 };
 
-
-
-
+//delete 
 exports.deleteList = async (req, res) => {
   try {
     const list = await List.destroy({
@@ -149,3 +160,16 @@ exports.deleteList = async (req, res) => {
 
   res.redirect("/list");
 };
+
+exports.googleLogin=(req,res)=>{
+  res.render("index")
+}
+
+exports.googleLogout = (req,res)=>{
+  req.logOut((err)=>{
+    if (err){
+      console.error("Error while logging out:", err)
+    }
+    res.redirect("/")
+  });
+}

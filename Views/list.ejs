@@ -13,109 +13,114 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
   <style>
-    body {
-      margin-top: 50px;
-      background: #f8f8f8;
-    }
+  body {
+  
+  background: #f8f8f8;
+}
 
-    .card {
-      padding: 25px;
-      margin-bottom: 20px;
-      background: #fff;
-      border-radius: calc(.15rem - 1px);
-      box-shadow: 0 1px 15px rgba(0, 0, 0, 0.04), 0 1px 6px rgba(0, 0, 0, 0.04);
-    }
+.card {
+  padding: 25px;
+  margin-bottom: 20px;
+  margin-top: 50px;
+  background: whitesmoke;
+  border-radius: calc(.15rem - 1px);
+  box-shadow: 0 1px 15px rgba(0, 0, 0, 0.04), 0 1px 6px rgba(0, 0, 0, 0.04);
+  border-color: #000;
+}
 
-    .form-inline .input-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+.form-inline .input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    .add-task {
-      width: 100%;
-    }
+.add-task {
+  width: 100%;
+}
 
-    .table-container {
-      margin-top: 20px;
-    }
+.table-container {
+  margin-top: 20px;
+}
 
-    .table-container table {
-      border-collapse: collapse;
-      width: 100%;
-    }
+.table-container table {
+  border-collapse: collapse;
+  width: 100%;
+}
 
-    .table-container th,
-    .table-container td {
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
-      text-align: left;
-    }
+.table-container th,
+.table-container td {
+  padding: 10px;
+  text-align: left;
+}
 
-    .table-container th {
-      font-weight: bold;
-    }
+.table-container th {
+  font-weight: bold;
+}
 
-    .status {
-      text-transform: capitalize;
-    }
+.status.Completed {
+  color: #4E9F3D;
+  font-weight: bold;
+}
 
-    .status.Completed {
-      color: #4E9F3D;
-      font-weight: bold;
+.status.Missed {
+  color: #F15A59;
+  font-weight: bold;
+}
 
-    }
+.status.Pending {
+  color: #1F6E8C;
+  font-weight: bold;
+}
 
-    .status.Missed {
-      color: #F15A59;
-      font-weight: bold;
+.filter-container {
+  margin-top: 20px;
+}
 
-    }
+.filter-container select {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
 
-    .status.Active {
-      color: #1F6E8C;
-      font-weight: bold;
-    }
+.task-date i {
+  margin-right: 5px;
+}
 
-    .filter-container {
-      margin-top: 20px;
-    }
+.task-icons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
 
-    .filter-container select {
-      padding: 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
+.remove-todo-item {
+  color: red;
+  margin-left: 10px;
+  display: inline-block;
+}
 
-    .task-date i {
-      margin-right: 5px;
-    }
+.complete-todo-item {
+  color: green;
+  margin-right: 10px;
+  display: inline-block;
+}
 
-    .task-icons {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
+.table-container table tr:nth-child(even) {
+  background-color: whitesmoke;
+}
 
-    .remove-todo-item {
-      color: red;
-      margin-left: 10px;
-      display: inline-block;
-    }
+.table-container table tr:nth-child(odd) {
+  background-color: white;
+}
 
-    .complete-todo-item {
-      color: green;
-      margin-right: 10px;
-      display: inline-block;
-    }
-
-    .hide {
-      display: none;
-    }
+.hide {
+  display: none;
+}
   </style>
 </head>
 
 <body>
+  
+  <%- include('navbar') %>
   <div class="container">
     <div class="row">
       <div class="col-md-12">
@@ -134,11 +139,12 @@
               <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="task-filter"
                   data-bs-toggle="dropdown" aria-expanded="false">
-                  Filter Tasks
+                  <i class="fa-solid fa-filter"></i>
+                  Filter
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="task-filter">
                   <li><a class="dropdown-item" href="/list">All</a></li>
-                  <li><a class="dropdown-item" href="/list/filter/active">Active</a></li>
+                  <li><a class="dropdown-item" href="/list/filter/pending">Pending</a></li>
                   <li><a class="dropdown-item" href="/list/filter/completed">Completed</a></li>
                   <li><a class="dropdown-item" href="/list/filter/missed">Missed</a></li>
                 </ul>
@@ -151,8 +157,8 @@
                 <thead>
                   <tr>
                     <th>Task</th>
-                    <th>Due Date</th>
                     <th>Status</th>
+                    <th>Due Date</th>
                     <th>Activities</th>
                   </tr>
                 </thead>
@@ -160,15 +166,15 @@
                   <% lists.forEach((list) => { %>
                   <tr class="todo-item">
                     <td class="task-text"><%= list.task %></td>
-                    <td class="task-date"><i
-                        class="fas fa-calendar-days"></i><%= moment(list.date).format('dddd, MMMM Do YYYY') %></td>
                     <td class="status <%= list.status %>">
                       <%= list.status %>
                     </td>
-
+                    <td class="task-date">
+                      <i class="fas fa-calendar-days"></i><%= moment(list.date).format('dddd, MMMM Do YYYY') %>
+                    </td>
 
                     <td class="task-icons">
-                      <% if(list.completed === false && moment(list.date).isSameOrAfter(moment().startOf('day'))) { %>
+                      <% if(list.status === 'Pending') { %>
                       <a href="/complete/<%= list.id %>" class="complete-todo-item" title="Complete Task">
                         <i class="fas fa-check"></i>
                       </a>

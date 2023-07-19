@@ -13,7 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       date:{
         type:DataTypes.DATE,
         allowNull: false,
-      }
+      },
+
+      userId:{
+        type:DataTypes.STRING,
+        allowNull: false,
+      },
+      
       
 
     });

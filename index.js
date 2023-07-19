@@ -20,7 +20,7 @@ app.use(
     session({
       secret: 'google-auth', // Replace with your own secret key
       resave: false,
-      saveUninitialized: false,
+      saveUninitialized: true,
       cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
       },
@@ -31,25 +31,10 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get("/", (req, res) => {
-  res.render("index");
-});
+// app.get("/", (req, res) => {
+//   res.render("index");
+// });
 
-// app.get("/list", (req, res) => {
-//     res.render("list");
-//   });
-
-
-app.get("/list", listController.renderCreateList);
-app.post("/list", listController.createList);
-
-app.get("/delete/:id", listController.deleteList);
-
-app.get("/edit/:id",  listController.editList); 
-app.post("/update/:id",  listController.updateList);
-
-app.get("/complete/:id", listController.completeList);
-app.get("/list/filter/:status", listController.renderFilteredTasks);
 
 
 
@@ -66,14 +51,31 @@ app.get('/auth/callback', passport.authenticate('google', {
 app.get('/auth/callback/success', (req, res) => {
   if (!req.user)
     res.redirect('/auth/callback/failure');
-  res.send("Welcome " + req.user.email);
-  console.log(req.user)
+  res.redirect("/list");
 });
 
 // Failure
 app.get('/auth/callback/failure', (req, res) => {
-  res.send("Error");
+  res.redirect("/");
 });
+
+checkAuthenticated= (req,res,next)=>{
+  if (req.isAuthenticated()){return next()}
+  res.redirect("/list")
+}
+
+app.get("/", listController.googleLogin);
+app.get("/list", checkAuthenticated, listController.renderCreateList);
+app.post("/list", checkAuthenticated, listController.createList);
+
+app.get("/delete/:id", checkAuthenticated, listController.deleteList);
+
+app.get("/edit/:id",  checkAuthenticated, listController.editList); 
+app.post("/update/:id",  checkAuthenticated, listController.updateList);
+
+app.get("/complete/:id", checkAuthenticated, listController.completeList);
+app.get("/list/filter/:status", checkAuthenticated, listController.renderFilteredTasks);
+app.get("/logout",checkAuthenticated,listController.googleLogout)
 
 
 app.listen(port, () => {
