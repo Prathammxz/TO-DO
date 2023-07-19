@@ -49,7 +49,7 @@ app.get("/edit/:id",  listController.editList);
 app.post("/update/:id",  listController.updateList);
 
 app.get("/complete/:id", listController.completeList);
-
+app.get("/list/filter/:status", listController.renderFilteredTasks);
 
 
 

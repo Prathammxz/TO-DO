@@ -52,7 +52,6 @@ exports.updateList = async (req, res) => {
   res.redirect("/list");
 };
 
-
 exports.completeList = async (req, res) => {
   const  id  = req.params.id;
 
@@ -66,6 +65,31 @@ exports.completeList = async (req, res) => {
     res.redirect("/list");
  
 };
+
+exports.renderFilteredTasks = async (req, res) => {
+  const { status } = req.params;
+
+  let tasks;
+  if (status === 'completed') {
+    tasks = await db.list.findAll({
+      where: {
+        completed: true,
+      },
+    });
+  } else if (status === 'active') {
+    tasks = await db.list.findAll({
+      where: {
+        completed: false,
+      },
+    });
+  } else {
+    tasks = await db.list.findAll();
+  }
+
+  res.render("list", { lists: tasks, moment: moment, selectedFilter: status });
+};
+
+
 
 
 exports.deleteList = async (req, res) => {
