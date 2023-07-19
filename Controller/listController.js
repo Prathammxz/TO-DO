@@ -4,38 +4,48 @@ const List = db.list
 
 
 exports.renderCreateList = async (req, res) => {
-    const lists = await List.findAll();
-    res.render("list", { lists: lists, moment: moment });
-  };
+  const lists = await List.findAll();
+  const updatedLists = lists.map(updateListStatus);
+  res.render("list", {
+    lists: updatedLists,
+    moment: moment
+  });
+};
+
 
 exports.createList = async (req, res) => {
-    const { task, date } = req.body;
+  const {
+    task,
+    date
+  } = req.body;
 
-        await db.list.create({
-          task: task,
-          completed: false,
-          date: date, 
-        });
-        console.log("List Updated Successfully");
-    
-    res.redirect("/list");
-  };
-  
-  
+  await db.list.create({
+    task: task,
+    completed: false,
+    date: date,
+  });
+  console.log("List Updated Successfully");
+
+  res.redirect("/list");
+};
+
+
 exports.editList = async (req, res) => {
   const lists = await List.findAll({
     where: {
       id: req.params.id,
     },
   });
-  res.render("list", { lists: [lists] }); 
+  res.render("list", {
+    lists: [lists]
+  });
 };
 
 
 exports.updateList = async (req, res) => {
   let updateData = {
     task: req.body.task,
-    completed: req.body.completed, 
+    completed: req.body.completed,
   };
 
   try {
@@ -53,22 +63,37 @@ exports.updateList = async (req, res) => {
 };
 
 exports.completeList = async (req, res) => {
-  const  id  = req.params.id;
+  const id = req.params.id;
 
-    await List.update({ completed: 1 }, {
-      where: {
-        id: id
-      }
-    });
-    console.log("Task is Completed successfully");
+  await List.update({
+    completed: 1
+  }, {
+    where: {
+      id: id
+    }
+  });
+  console.log("Task is Completed successfully");
 
-    res.redirect("/list");
- 
+  res.redirect("/list");
+
 };
+
+function updateListStatus(list) {
+  if (list.completed) {
+    list.status = 'Completed';
+  } else if (moment(list.date).isBefore(moment().startOf('day'))) {
+    list.status = 'Missed';
+  } else {
+    list.status = 'Active';
+  }
+  return list;
+}
+
+
 
 exports.renderFilteredTasks = async (req, res) => {
   const { status } = req.params;
-
+  
   let tasks;
   if (status === 'completed') {
     tasks = await db.list.findAll({
@@ -80,13 +105,31 @@ exports.renderFilteredTasks = async (req, res) => {
     tasks = await db.list.findAll({
       where: {
         completed: false,
+        date: {
+          [db.Sequelize.Op.gte]: moment().startOf('day').toDate(),
+        },
+      },
+    });
+  } else if (status === 'missed') {
+    tasks = await db.list.findAll({
+      where: {
+        completed: false,
+        date: {
+          [db.Sequelize.Op.lt]: moment().startOf('day').toDate(),
+        },
       },
     });
   } else {
     tasks = await db.list.findAll();
   }
 
-  res.render("list", { lists: tasks, moment: moment, selectedFilter: status });
+  const updatedTasks = tasks.map(updateListStatus);
+
+  res.render("list", {
+    lists: updatedTasks,
+    moment: moment,
+    selectedFilter: status
+  });
 };
 
 

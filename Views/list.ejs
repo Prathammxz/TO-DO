@@ -60,6 +60,23 @@
       text-transform: capitalize;
     }
 
+    .status.Completed {
+      color: #4E9F3D;
+      font-weight: bold;
+
+    }
+
+    .status.Missed {
+      color: #F15A59;
+      font-weight: bold;
+
+    }
+
+    .status.Active {
+      color: #1F6E8C;
+      font-weight: bold;
+    }
+
     .filter-container {
       margin-top: 20px;
     }
@@ -74,14 +91,26 @@
       margin-right: 5px;
     }
 
+    .task-icons {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
     .remove-todo-item {
       color: red;
-      margin-right: 10px;
+      margin-left: 10px;
+      display: inline-block;
     }
 
     .complete-todo-item {
       color: green;
       margin-right: 10px;
+      display: inline-block;
+    }
+
+    .hide {
+      display: none;
     }
   </style>
 </head>
@@ -103,18 +132,20 @@
             </form>
             <div class="filter-container">
               <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="task-filter" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="task-filter"
+                  data-bs-toggle="dropdown" aria-expanded="false">
                   Filter Tasks
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="task-filter">
-                  <li><a class="dropdown-item" href="/list/filter/all">All</a></li>
+                  <li><a class="dropdown-item" href="/list">All</a></li>
                   <li><a class="dropdown-item" href="/list/filter/active">Active</a></li>
                   <li><a class="dropdown-item" href="/list/filter/completed">Completed</a></li>
+                  <li><a class="dropdown-item" href="/list/filter/missed">Missed</a></li>
                 </ul>
               </div>
             </div>
-            
-            
+
+
             <div class="table-container">
               <table class="table">
                 <thead>
@@ -129,19 +160,27 @@
                   <% lists.forEach((list) => { %>
                   <tr class="todo-item">
                     <td class="task-text"><%= list.task %></td>
-                    <td class="task-date"><i class="fas fa-calendar-days"></i><%= moment(list.date).format('dddd, MMMM Do YYYY') %></td>
-                    <td class="status"><%= list.completed ? 'Completed' : 'Active' %></td>
+                    <td class="task-date"><i
+                        class="fas fa-calendar-days"></i><%= moment(list.date).format('dddd, MMMM Do YYYY') %></td>
+                    <td class="status <%= list.status %>">
+                      <%= list.status %>
+                    </td>
+
+
                     <td class="task-icons">
-                      <a href="/complete/<%= list.id%>" class="complete-todo-item" title="Complete Task">
+                      <% if(list.completed === false && moment(list.date).isSameOrAfter(moment().startOf('day'))) { %>
+                      <a href="/complete/<%= list.id %>" class="complete-todo-item" title="Complete Task">
                         <i class="fas fa-check"></i>
                       </a>
-                      <a href="/delete/<%= list.id%>" class="remove-todo-item" title="Delete Task">
+                      <% } %>
+                      <a href="/delete/<%= list.id %>" class="remove-todo-item" title="Delete Task">
                         <i class="fas fa-trash"></i>
                       </a>
                     </td>
                   </tr>
                   <% }) %>
                 </tbody>
+
               </table>
             </div>
           </div>
