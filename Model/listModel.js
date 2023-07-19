@@ -4,6 +4,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+
+      completed:{
+        type:DataTypes.BOOLEAN,
+        allowNull: false,
+      },
+
+      date:{
+        type:DataTypes.DATE,
+        allowNull: false,
+      }
       
 
     });

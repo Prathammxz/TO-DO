@@ -1,3 +1,5 @@
+<!-- other-list.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -144,6 +146,7 @@
             <form class="form-inline" action="/list" method="post">
               <div class="input-group">
                 <input type="text" class="form-control add-task" placeholder="New Task..." name="task">
+                <input type="date" class="form-control add-task-date" name="date">
                 <button type="submit" class="btn btn-primary">
                   <i class="fas fa-plus"></i> Add
                 </button>
@@ -152,31 +155,23 @@
             <ul class="nav nav-pills todo-nav">
               <li role="presentation" class="nav-item all-task active"><a href="#" class="nav-link">All</a></li>
               <li role="presentation" class="nav-item active-task"><a href="#" class="nav-link">Active</a></li>
-              <li role="presentation" class="nav-item completed-task"><a  href="#" class="nav-link">Completed</a></li>
+              <li role="presentation" class="nav-item completed-task"><a href="#" class="nav-link">Completed</a></li>
             </ul>
             <div class="todo-list">
               <% lists.forEach((list) => { %>
-              <div class="todo-item <%= list.completed ? 'complete' : '' %>" data-id="<%= list.id %>">
+              <div class="todo-item ">
                 <div class="checker">
                   <span>
                     <input type="checkbox" onclick="toggleTaskCompletion('<%= list.id %>')" <%= list.completed ? 'checked' : '' %>>
                   </span>
                 </div>
                 <span class="task-text"><%= list.task %></span>
+                <span class="task-text"><%= moment(list.date).format('MMMM Do YYYY, h:mm:ss a') %></span>
+                
                 <div class="task-icons">
-                  <a href="#" class="edit-todo-item" title="Edit Task" onclick="showEditArea('<%= list.id %>'); return false;">
-                    <i class="fas fa-edit"></i>
-                  </a>
                   <a href="/delete/<%= list.id%>" class="remove-todo-item" title="Delete Task">
                     <i class="fas fa-trash"></i>
                   </a>
-                </div>
-                <div id="edit-area-<%= list.id %>" class="edit-area" style="display: none;">
-                  <!-- Edit form or input field for editing the task -->
-                  <form action="/update/<%= list.id %>" method="post">
-                    <input type="text" class="form-control edit-task" name="task" placeholder="Edit Task...">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                  </form>
                 </div>
               </div>
               <% }) %>
@@ -188,102 +183,9 @@
   </div>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const allTaskLink = document.querySelector('.all-task');
-      const activeTaskLink = document.querySelector('.active-task');
-      const completedTaskLink = document.querySelector('.completed-task');
-  
-      allTaskLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        showAllTasks();
-        allTaskLink.classList.add('active');
-        activeTaskLink.classList.remove('active');
-        completedTaskLink.classList.remove('active');
-      });
-  
-      activeTaskLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        showActiveTasks();
-        allTaskLink.classList.remove('active');
-        activeTaskLink.classList.add('active');
-        completedTaskLink.classList.remove('active');
-      });
-  
-      completedTaskLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        showCompletedTasks();
-        allTaskLink.classList.remove('active');
-        activeTaskLink.classList.remove('active');
-        completedTaskLink.classList.add('active');
-      });
-    });
-  
-    function showAllTasks() {
-      const allTasks = document.querySelectorAll('.todo-item');
-      allTasks.forEach(function(task) {
-        task.style.display = 'flex';
-      });
-    }
-  
-    function showActiveTasks() {
-      const activeTasks = document.querySelectorAll('.todo-item:not(.complete)');
-      const completedTasks = document.querySelectorAll('.todo-item.complete');
-      activeTasks.forEach(function(task) {
-        task.style.display = 'flex';
-      });
-      completedTasks.forEach(function(task) {
-        task.style.display = 'none';
-      });
-    }
-  
-    function showCompletedTasks() {
-      const activeTasks = document.querySelectorAll('.todo-item:not(.complete)');
-      const completedTasks = document.querySelectorAll('.todo-item.complete');
-      activeTasks.forEach(function(task) {
-        task.style.display = 'none';
-      });
-      completedTasks.forEach(function(task) {
-        task.style.display = 'flex';
-      });
-    }
-  
-    function showEditArea(listId) {
-      const editArea = document.getElementById(`edit-area-${listId}`);
-      editArea.style.display = 'block';
-  
-      // Hide delete and edit icons
-      const editIcon = document.querySelector(`.todo-item[data-id="${listId}"] .edit-todo-item`);
-      const deleteIcon = document.querySelector(`.todo-item[data-id="${listId}"] .remove-todo-item`);
-      editIcon.classList.add('hide');
-      deleteIcon.classList.add('hide');
-    }
-  
-    function toggleTaskCompletion(listId) {
-      const todoItem = document.querySelector(`.todo-item[data-id="${listId}"]`);
-      const checkbox = todoItem.querySelector('input[type="checkbox"]');
-      const allTaskList = document.querySelector('.all-task .todo-list');
-      const completedTaskList = document.querySelector('.completed-task .todo-list');
-  
-      // Check if the checkbox is checked
-      if (checkbox.checked) {
-        todoItem.classList.add('complete');
-        todoItem.classList.remove('active');
-  
-        if (!completedTaskList.contains(todoItem)) {
-          completedTaskList.appendChild(todoItem);
-        }
-      } else {
-        todoItem.classList.remove('complete');
-        todoItem.classList.add('active');
-  
-        if (!allTaskList.contains(todoItem)) {
-          allTaskList.appendChild(todoItem);
-        }
-      }
-    }
-  </script>
-  
+  <script src="/your-javascript-file.js"></script>
 </body>
+
+
 
 </html>
