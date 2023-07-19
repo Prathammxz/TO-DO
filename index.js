@@ -48,6 +48,9 @@ app.get("/delete/:id", listController.deleteList);
 app.get("/edit/:id",  listController.editList); 
 app.post("/update/:id",  listController.updateList);
 
+app.get("/complete/:id", listController.completeList);
+
+
 
 
 // Auth

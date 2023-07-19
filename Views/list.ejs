@@ -1,5 +1,3 @@
-<!-- other-list.ejs -->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,63 +14,8 @@
 
   <style>
     body {
-      margin-top: 20px;
+      margin-top: 50px;
       background: #f8f8f8;
-    }
-
-    .todo-list {
-      margin: 10px 0;
-    }
-
-    .todo-list .todo-item {
-      padding: 15px;
-      margin: 5px 0;
-      background: #f7f7f7;
-      display: flex;
-      align-items: center;
-    }
-
-    .todo-list .todo-item.complete .task-text {
-      text-decoration: line-through;
-    }
-
-    .remove-todo-item {
-      color: red;
-    }
-
-    .remove-todo-item:hover {
-      color: #a70000;
-    }
-
-    .todo-item:hover .remove-todo-item {
-      visibility: visible;
-    }
-
-    .edit-todo-item,
-    .remove-todo-item {
-      display: inline-block;
-    }
-
-    .edit-todo-item.hide,
-    .remove-todo-item.hide {
-      display: none;
-    }
-
-    .checker {
-      width: 18px;
-      height: 18px;
-    }
-
-    .checker input,
-    .checker span {
-      width: 18px;
-      height: 18px;
-    }
-
-    .checker span {
-      display: inline-block;
-      text-align: center;
-      background-position: 0 -260px;
     }
 
     .card {
@@ -89,50 +32,56 @@
       gap: 10px;
     }
 
-    .form-inline .btn {
-      flex: 0 0 auto;
-    }
-
     .add-task {
       width: 100%;
     }
 
-    .edit-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 10px;
+    .table-container {
+      margin-top: 20px;
     }
 
-    .edit-area form {
-      display: flex;
-      align-items: center;
+    .table-container table {
+      border-collapse: collapse;
+      width: 100%;
     }
 
-    .edit-area form input {
-      flex-grow: 1;
+    .table-container th,
+    .table-container td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
     }
 
-    .edit-area form button {
-      margin-left: 10px;
+    .table-container th {
+      font-weight: bold;
     }
 
-    .todo-item .task-text {
-      flex-grow: 1;
+    .status {
+      text-transform: capitalize;
+    }
+
+    .filter-container {
+      margin-top: 20px;
+    }
+
+    .filter-container select {
+      padding: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .task-date i {
+      margin-right: 5px;
+    }
+
+    .remove-todo-item {
+      color: red;
       margin-right: 10px;
     }
 
-    .todo-item .task-icons {
-      display: flex;
-      align-items: center;
-    }
-
-    .task-icons a {
-      margin-left: 10px;
-    }
-
-    .task-icons a:first-child {
-      margin-left: 0;
+    .complete-todo-item {
+      color: green;
+      margin-right: 10px;
     }
   </style>
 </head>
@@ -141,40 +90,58 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12">
-        <div class="card card-white">
+        <div class="card">
           <div class="card-body">
             <form class="form-inline" action="/list" method="post">
               <div class="input-group">
-                <input type="text" class="form-control add-task" placeholder="New Task..." name="task">
-                <input type="date" class="form-control add-task-date" name="date">
+                <input type="text" class="form-control add-task" placeholder="New Task..." name="task" required>
+                <input type="date" class="form-control add-task-date" name="date" required>
                 <button type="submit" class="btn btn-primary">
                   <i class="fas fa-plus"></i> Add
                 </button>
               </div>
             </form>
-            <ul class="nav nav-pills todo-nav">
-              <li role="presentation" class="nav-item all-task active"><a href="#" class="nav-link">All</a></li>
-              <li role="presentation" class="nav-item active-task"><a href="#" class="nav-link">Active</a></li>
-              <li role="presentation" class="nav-item completed-task"><a href="#" class="nav-link">Completed</a></li>
-            </ul>
-            <div class="todo-list">
-              <% lists.forEach((list) => { %>
-              <div class="todo-item ">
-                <div class="checker">
-                  <span>
-                    <input type="checkbox" onclick="toggleTaskCompletion('<%= list.id %>')" <%= list.completed ? 'checked' : '' %>>
-                  </span>
-                </div>
-                <span class="task-text"><%= list.task %></span>
-                <span class="task-text"><%= moment(list.date).format('MMMM Do YYYY, h:mm:ss a') %></span>
-                
-                <div class="task-icons">
-                  <a href="/delete/<%= list.id%>" class="remove-todo-item" title="Delete Task">
-                    <i class="fas fa-trash"></i>
-                  </a>
-                </div>
+            <div class="filter-container">
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="task-filter" data-bs-toggle="dropdown" aria-expanded="false">
+                  Filter Tasks
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="task-filter">
+                  <li><a class="dropdown-item" href="#" data-filter="all">All</a></li>
+                  <li><a class="dropdown-item" href="#" data-filter="active">Active</a></li>
+                  <li><a class="dropdown-item" href="#" data-filter="completed">Completed</a></li>
+                </ul>
               </div>
-              <% }) %>
+            </div>
+            
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Task</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Activities</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% lists.forEach((list) => { %>
+                  <tr class="todo-item">
+                    <td class="task-text"><%= list.task %></td>
+                    <td class="task-date"><i class="fas fa-calendar-days"></i><%= moment(list.date).format('dddd, MMMM Do YYYY') %></td>
+                    <td class="status"><%= list.completed ? 'Completed' : 'Active' %></td>
+                    <td class="task-icons">
+                      <a href="/complete/<%= list.id%>" class="complete-todo-item" title="Complete Task">
+                        <i class="fas fa-check"></i>
+                      </a>
+                      <a href="/delete/<%= list.id%>" class="remove-todo-item" title="Delete Task">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -185,7 +152,5 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/your-javascript-file.js"></script>
 </body>
-
-
 
 </html>

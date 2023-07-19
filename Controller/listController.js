@@ -1,30 +1,23 @@
 const db = require("../Model/index");
+const moment = require('moment');
 const List = db.list
 
 
 exports.renderCreateList = async (req, res) => {
     const lists = await List.findAll();
-    res.render("list", { lists: lists });
+    res.render("list", { lists: lists, moment: moment });
   };
 
 exports.createList = async (req, res) => {
     const { task, date } = req.body;
-  
-    const trimmedTask = task.trim(); // Trim the task input
-  
-    if (trimmedTask !== "") {
-      try {
+
         await db.list.create({
-          task: trimmedTask,
+          task: task,
           completed: false,
-          date: date, // Set the completed status to false
+          date: date, 
         });
         console.log("List Updated Successfully");
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  
+    
     res.redirect("/list");
   };
   
@@ -35,14 +28,14 @@ exports.editList = async (req, res) => {
       id: req.params.id,
     },
   });
-  res.render("list", { lists: [lists] }); // Pass lists as an array
+  res.render("list", { lists: [lists] }); 
 };
 
 
 exports.updateList = async (req, res) => {
   let updateData = {
     task: req.body.task,
-    completed: req.body.completed // Include the completed field
+    completed: req.body.completed, 
   };
 
   try {
@@ -59,6 +52,20 @@ exports.updateList = async (req, res) => {
   res.redirect("/list");
 };
 
+
+exports.completeList = async (req, res) => {
+  const  id  = req.params.id;
+
+    await List.update({ completed: 1 }, {
+      where: {
+        id: id
+      }
+    });
+    console.log("Task is Completed successfully");
+
+    res.redirect("/list");
+ 
+};
 
 
 exports.deleteList = async (req, res) => {
