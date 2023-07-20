@@ -89,7 +89,7 @@
 .task-icons {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content:right;
 }
 
 .remove-todo-item {
@@ -121,7 +121,8 @@
 <body>
   
   <%- include('navbar') %>
-  <div class="container">
+  <h1 style="text-align: center; color: rgb(0, 110, 255); margin-top: 25px;">To-Do List</h1> 
+   <div class="container">
     <div class="row">
       <div class="col-md-12">
         <div class="card">
@@ -156,10 +157,10 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Task</th>
-                    <th>Status</th>
-                    <th>Due Date</th>
-                    <th>Activities</th>
+                    <th><i class="fa-solid fa-list"></i> Task</th>
+                    <th><i class="fa-regular fa-note-sticky"></i> Status</th>
+                    <th> <i class="fas fa-calendar-days"></i> Due Date</th>
+                    <th><i class="fa-solid fa-chalkboard-user"></i> Activities</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -170,7 +171,7 @@
                       <%= list.status %>
                     </td>
                     <td class="task-date">
-                      <i class="fas fa-calendar-days"></i><%= moment(list.date).format('dddd, MMMM Do YYYY') %>
+                     <%= moment(list.date).format('dddd, MMMM Do YYYY') %>
                     </td>
 
                     <td class="task-icons">
@@ -196,7 +197,6 @@
   </div>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/your-javascript-file.js"></script>
 </body>
 
 </html>
